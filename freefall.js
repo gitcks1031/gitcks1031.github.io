@@ -21,35 +21,35 @@ function drawGrid() {
     ctx.lineWidth = 1;
     
     // 가로선 그리기
-    for (let i = 0; i <= sim-canvas.height; i += 40) {
+    for (let i = 0; i <= canvas.height; i += 40) {
         ctx.beginPath();
         ctx.moveTo(0, i);
-        ctx.lineTo(sim-canvas.width, i);
+        ctx.lineTo(canvas.width, i);
         ctx.stroke();
     }
     // 세로선 그리기
-    for (let i = 0; i <= sim-canvas.width; i += 40) {
+    for (let i = 0; i <= canvas.width; i += 40) {
         ctx.beginPath();
         ctx.moveTo(i, 0);
-        ctx.lineTo(i, sim-canvas.height);
+        ctx.lineTo(i, canvas.height);
         ctx.stroke();
     }
 }
 // 그리기 함수
 function draw() {
-    ctx.clearRect(0, 0, sim-canvas.width, sim-canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     // 눈금 그리기
     drawGrid();
     // 지면 그리기
     ctx.fillStyle = 'green';
-    ctx.fillRect(0, sim-canvas.height - groundHeight, sim-canvas.width, groundHeight);
+    ctx.fillRect(0, canvas.height - groundHeight, canvas.width, groundHeight);
     // 속도 측정기 그리기
     ctx.fillStyle = 'blue';
-    ctx.fillRect(0, sim-canvas.height - groundHeight - 2, sim-canvas.width, 4);
+    ctx.fillRect(0, canvas.height - groundHeight - 2, canvas.width, 4);
     // 공 그리기
     ctx.fillStyle = 'red';
     ctx.beginPath();
-    ctx.arc(sim-canvas.width / 2, sim-canvas.height - (y + groundHeight / 10) * 10, 10, 0, 2 * Math.PI);
+    ctx.arc(canvas.width / 2, canvas.height - (y + groundHeight / 10) * 10, 10, 0, 2 * Math.PI);
     ctx.fill();
     // 현재 높이 표시
     ctx.fillStyle = 'black';
@@ -106,9 +106,9 @@ function update() {
 }
 
 // 마우스 이벤트 핸들러
-sim-canvas.addEventListener('mousedown', function(event) {
-    let rect = sim-canvas.getBoundingClientRect();
--105,6 +129,8 ;sim-canvas.addEventListener('mousedown', function(event) {
+canvas.addEventListener('mousedown', function(event) {
+    let rect = canvas.getBoundingClientRect();
+ -105,6 +129,8 ;canvas.addEventListener('mousedown', function(event) {
 
     if (Math.abs(mouseY - ballY) < 10) {
         isDragging = true;
@@ -117,14 +117,14 @@ sim-canvas.addEventListener('mousedown', function(event) {
     }
 });
 
--125,17 +151,13 ;sim-canvas.addEventListener('mouseup', function() {
+ -125,17 +151,13 ;canvas.addEventListener('mouseup'), function() {
         v = 0;
         t = 0;
         speedMeasured = false; // 속도 측정 초기화
         // 마우스 버튼을 놓았을 때 시뮬레이션 시작
         updateId = requestAnimationFrame(update);
     }
-);});
+});
 
 // 시뮬레이션 시작
 document.getElementById('start-btn').addEventListener('click', function() {
