@@ -15,11 +15,13 @@ let initialHeight = 0; // 초기 높이 저장
 let isDragging = false;  // 드래그 상태
 let speedMeasured = false; // 속도 측정 여부
 let measuredSpeed = 0; // 측정된 속도
+let updateId; // 업데이트 ID 변수 추가
+
 // 눈금 그리기 함수
 function drawGrid() {
     ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'; // 눈금 색상
     ctx.lineWidth = 1;
-    
+
     // 가로선 그리기
     for (let i = 0; i <= canvas.height; i += 40) {
         ctx.beginPath();
@@ -27,6 +29,7 @@ function drawGrid() {
         ctx.lineTo(canvas.width, i);
         ctx.stroke();
     }
+
     // 세로선 그리기
     for (let i = 0; i <= canvas.width; i += 40) {
         ctx.beginPath();
@@ -35,6 +38,7 @@ function drawGrid() {
         ctx.stroke();
     }
 }
+
 // 그리기 함수
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -54,31 +58,11 @@ function draw() {
     // 현재 높이 표시
     ctx.fillStyle = 'black';
     ctx.font = '20px Arial';
-    ctx.fillText(`높이: ${y.toFixed(2)} m`, 10, 30);
+    ctx.fillText(`높이: ${y.toFixed(1.996)} m`, 10, 30);
     // 측정된 속도 표시
     if (speedMeasured) {
         ctx.fillText(`측정 속도: ${measuredSpeed.toFixed(2)} m/s`, 10, 60);
     }
-}
-// 업데이트 함수
-function update() {
-    v += g * dt;
-    y -= v * dt;
-    t += dt;
-    // 속도 측정기 통과 시 속도 측정
-    if (!speedMeasured && y <= 0) {
-        measuredSpeed = v;
-        speedMeasured = true;
-    }
-    // 지면에 닿으면 멈춤
-    if (y < 0) {
-        y = 0;
-        v = 0;
-        draw();
-        return;
-    }
-    draw();
-    requestAnimationFrame(update);
 }
 
 // 업데이트 함수
@@ -102,27 +86,43 @@ function update() {
     }
 
     draw();
-    requestAnimationFrame(update);
+    updateId = requestAnimationFrame(update);
 }
 
 // 마우스 이벤트 핸들러
 canvas.addEventListener('mousedown', function(event) {
     let rect = canvas.getBoundingClientRect();
- -105,6 +129,8 ;canvas.addEventListener('mousedown', function(event) {
+    let mouseX = event.clientX - rect.left;
+    let mouseY = event.clientY - rect.top;
 
-    if (Math.abs(mouseY - ballY) < 10) {
+    // 공의 위치와 마우스 클릭 위치를 비교하여 드래그 상태를 결정
+    if (Math.abs(mouseX - canvas.width / 2) < 10 &&
+        Math.abs(mouseY - (canvas.height - (y + groundHeight / 10) * 10)) < 10) {
         isDragging = true;
         // 드래그 시작 시 애니메이션 중지
         cancelAnimationFrame(updateId);
     }
 });
 
- -125,17 +151,13 ;canvas.addEventListener('mouseup'), function() {
+canvas.addEventListener('mousemove', function(event) {
+    if (isDragging) {
+        let rect = canvas.getBoundingClientRect();
+        let mouseY = event.clientY - rect.top;
+
+        // 공의 새로운 높이 계산 (드래그를 통해서만)
+        y = (canvas.height - mouseY - groundHeight / 10) / 10;
+        draw();
+    }
+});
+
+canvas.addEventListener('mouseup', function() {
+    if (isDragging) {
+        isDragging = false;
         v = 0;
         t = 0;
         speedMeasured = false; // 속도 측정 초기화
         // 마우스 버튼을 놓았을 때 시뮬레이션 시작
-        updateId = requestAnimationFrame(update);
+        update();
     }
 });
 
@@ -137,7 +137,3 @@ document.getElementById('start-btn').addEventListener('click', function() {
 
 // 초기 그리기
 draw();
-draw();
-
-// updateId 변수 추가
-let updateId;
