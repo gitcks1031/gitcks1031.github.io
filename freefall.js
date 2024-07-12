@@ -1,12 +1,15 @@
 // 상수
 const g = 9.81;  // 중력 가속도 (m/s^2)
 const dt = 0.1;  // 시간 간격 (s)
+
 // 캔버스와 컨텍스트 가져오기
 let canvas = document.getElementById('sim-canvas');
 let ctx = canvas.getContext('2d');
+
 // 속도 측정기 위치 (캔버스 바닥에서 50픽셀 위)
 const groundHeight = 50;
 const speedMeterPosition = (canvas.height - groundHeight) / 10; // 위치를 미터 단위로 변환
+
 // 변수
 let y = 0;  // 초기 높이 (m)
 let v = 0;  // 초기 속도 (m/s)
@@ -53,12 +56,12 @@ function draw() {
     // 공 그리기
     ctx.fillStyle = 'red';
     ctx.beginPath();
-    ctx.arc(canvas.width / 2, canvas.height - (y + groundHeight / 10) * 10, 10, 0, 2 * Math.PI);
+    ctx.arc(canvas.width / 2, canvas.height - (y * 10 + groundHeight), 10, 0, 2 * Math.PI);
     ctx.fill();
     // 현재 높이 표시
     ctx.fillStyle = 'black';
     ctx.font = '20px Arial';
-    ctx.fillText(`높이: ${y.toFixed(1.996)} m`, 10, 30);
+    ctx.fillText(`높이: ${y.toFixed(1)} m`, 10, 30);
     // 측정된 속도 표시
     if (speedMeasured) {
         ctx.fillText(`측정 속도: ${measuredSpeed.toFixed(2)} m/s`, 10, 60);
@@ -72,7 +75,7 @@ function update() {
     t += dt;
 
     // 속도 측정기 통과 시 속도 측정
-    if (!speedMeasured && y <= speedMeterPosition) {
+    if (!speedMeasured && y <= speedMeterPosition / 10) {
         measuredSpeed = v;
         speedMeasured = true;
     }
@@ -82,6 +85,7 @@ function update() {
         y = 0;
         v = 0;
         draw();
+        cancelAnimationFrame(updateId); // 애니메이션 중지
         return;
     }
 
@@ -97,7 +101,7 @@ canvas.addEventListener('mousedown', function(event) {
 
     // 공의 위치와 마우스 클릭 위치를 비교하여 드래그 상태를 결정
     if (Math.abs(mouseX - canvas.width / 2) < 10 &&
-        Math.abs(mouseY - (canvas.height - (y + groundHeight / 10) * 10)) < 10) {
+        Math.abs(mouseY - (canvas.height - (y * 10) - groundHeight)) < 10) {
         isDragging = true;
         // 드래그 시작 시 애니메이션 중지
         cancelAnimationFrame(updateId);
@@ -110,7 +114,7 @@ canvas.addEventListener('mousemove', function(event) {
         let mouseY = event.clientY - rect.top;
 
         // 공의 새로운 높이 계산 (드래그를 통해서만)
-        y = (canvas.height - mouseY - groundHeight / 10) / 10;
+        y = (canvas.height - mouseY - groundHeight) / 10;
         draw();
     }
 });
